@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        :root { --bg: #050505; --neon-red: #ff0033; --text: #ffffff; }
+        body { background-color: var(--bg); color: var(--text); font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        .speed-box { width: 200px; height: 200px; border-radius: 50%; border: 4px solid var(--neon-red); display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 0 20px var(--neon-red); margin-bottom: 20px; }
+        #speedValue { font-size: 40px; font-weight: bold; margin: 0; }
+        .host-display { color: #888; font-size: 12px; margin-bottom: 30px; }
+        .power-btn { width: 80px; height: 80px; border-radius: 50%; border: none; background: #1a1a1a; color: var(--neon-red); font-size: 30px; cursor: pointer; box-shadow: 0 0 10px #000; }
+        .power-btn.active { box-shadow: 0 0 20px var(--neon-red); background: #000; }
+    </style>
+</head>
+<body>
+    <div class="speed-box">
+        <p id="speedValue">0.00</p>
+        <span>MB/S</span>
+    </div>
+    <div class="host-display">Target: free-server.techsonic.ggff.net</div>
+    <button class="power-btn" id="btn" onclick="toggle()">⚡</button>
+
+    <script>
+        let isRunning = false;
+        const targetSNI = "free-server.techsonic.ggff.net";
+
+        function toggle() {
+            isRunning = !isRunning;
+            const btn = document.getElementById('btn');
+            if(isRunning) {
+                btn.classList.add('active');
+                if(window.Android) {
+                    window.Android.startService();
+                    window.Android.setTargetHost(targetSNI);
+                }
+                startLoop();
+            } else {
+                btn.classList.remove('active');
+                if(window.Android) window.Android.stopService();
+                document.getElementById('speedValue').innerText = "0.00";
+            }
+        }
+
+        function startLoop() {
+            if(!isRunning) return;
+            // Real speed fetch from Java
+            if(window.Android) {
+                document.getElementById('speedValue').innerText = window.Android.getSpeed();
+            }
+            setTimeout(startLoop, 1000);
+        }
+    </script>
+</body>
+</html>
